@@ -16,6 +16,10 @@ module WebsocketRails
 
     def subscribe(connection)
       info "#{connection} subscribed to channel #{name}"
+      if config.broadcast_subscriber_events?
+        event = Event.new 'subscriber_join', {:channel => name}
+        send_data event
+      end
       @subscribers << connection
       send_token connection
     end
@@ -23,6 +27,10 @@ module WebsocketRails
     def unsubscribe(connection)
       return unless @subscribers.include? connection
       info "#{connection} unsubscribed from channel #{name}"
+      if config.broadcast_subscriber_events?
+        event = Event.new 'subscriber_part', {:channel => name}
+        send_data event
+      end
       @subscribers.delete connection
 
       if @subscribers.empty?
@@ -31,6 +39,7 @@ module WebsocketRails
     end
 
     def trigger(event_name, data={}, options={})
+      info event.inspect
       options.merge! :channel => name
       options[:data] = data
 
@@ -42,6 +51,8 @@ module WebsocketRails
 
     def trigger_event(event)
       info "[#{name}] #{event.data.inspect}"
+      info "#{event.inspect}"
+      return unless event.token == @token
       send_data event
     end
 
@@ -82,6 +93,7 @@ module WebsocketRails
         :data => {:token => @token},
         :connection => connection
       }
+      info 'sending token'
 
       Event.new('websocket_rails.channel_token', options).trigger
     end

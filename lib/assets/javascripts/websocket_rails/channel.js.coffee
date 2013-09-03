@@ -44,7 +44,7 @@ class WebSocketRails.Channel
     @_callbacks[eventName].push callback
 
   trigger: (eventName, message) =>
-    attributes = {channel: @name, data: message}
+    attributes = {channel: @name, data: message, token: @_token}
     eventParams = [eventName, attributes, @_dispatcher.connection_id]
     event = new WebSocketRails.Event(eventParams)
 
@@ -54,9 +54,13 @@ class WebSocketRails.Channel
       @_eventQueue.push event
 
   dispatch: (eventName, message) =>
-    return unless @_callbacks[eventName]?
-    for callback in @_callbacks[eventName]
-      callback message
+    if eventName == 'websocket_rails.channel_token'
+      @_token = message['token']
+      return
+    else
+      return unless @_callbacks[eventName]?
+      for callback in @_callbacks[eventName]
+        callback message
 
   # using this method because @on_success will not be defined when the constructor is executed
   _success_launcher: (data) =>

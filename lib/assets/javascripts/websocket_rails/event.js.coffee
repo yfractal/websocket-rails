@@ -11,6 +11,7 @@ class WebSocketRails.Event
       @id      = if attr['id']? then attr['id'] else (((1+Math.random())*0x10000)|0)
       @channel = if attr.channel? then attr.channel
       @data    = if attr.data? then attr.data else attr
+      @token   = if attr.token? then attr.token
       @connection_id = data[2]
       if attr.success?
         @result  = true
@@ -34,7 +35,9 @@ class WebSocketRails.Event
   attributes: =>
     id: @id,
     channel: @channel,
-    data: @data
+    data: @data,
+    token: @token
+
 
   run_callbacks: (success,data) =>
     if success == true
