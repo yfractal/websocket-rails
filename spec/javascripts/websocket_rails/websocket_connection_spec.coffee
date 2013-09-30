@@ -14,7 +14,7 @@ describe 'WebsocketRails.WebSocketConnection:', ->
   describe 'constructor', ->
 
     it 'should set the onmessage event on the WebSocket object to this.on_message', ->
-      expect(@connection._conn.onmessage).toEqual "watching travis-ci fail"
+      expect(@connection._conn.onmessage).toEqual @connection.on_message
 
     it 'should set the onclose event on the WebSocket object to this.on_close', ->
       expect(@connection._conn.onclose).toEqual @connection.on_close
