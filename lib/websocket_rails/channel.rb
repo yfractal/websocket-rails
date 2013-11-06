@@ -55,7 +55,13 @@ module WebsocketRails
     end
 
     def token
-      @token ||= channel_tokens[@name] ||= generate_unique_token
+      @token ||= external_token ||= generate_unique_token
+    end
+
+    def external_token
+      Fiber.new do
+        return channel_tokens[@name]
+      end.resume
     end
 
     private
