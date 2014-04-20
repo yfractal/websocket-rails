@@ -11,7 +11,7 @@ module WebsocketRails
     let(:connection) { double('connection') }
     let(:wrongly_encoded_message) { '["new_message",[{"id":"1234","data":{"message":"this is a message"}}]]' }
 
-    before { connection.stub!(:id).and_return(1) }
+    before { connection.stub(:id).and_return(1) }
 
     describe ".new_from_json" do
       context "messages in the global namespace" do

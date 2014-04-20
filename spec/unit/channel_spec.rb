@@ -7,7 +7,7 @@ module WebsocketRails
     let(:connection) { double('connection') }
 
     before do
-      connection.stub!(:trigger)
+      connection.stub(:trigger)
     end
 
     it "should maintain a pool of subscribed connections" do
