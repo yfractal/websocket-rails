@@ -81,6 +81,15 @@ module WebsocketRails
       end
     end
 
+    describe "#filter_with" do
+      it "should add the controller to the filtered_channels hash" do
+        filter = double('BaseController')
+        subject.filtered_channels.should eq({})
+        subject.filter_with(filter)
+        subject.filtered_channels[subject.name].should eq(filter)
+      end
+    end
+
     context "private channels" do
       before do
         subject.subscribers << connection

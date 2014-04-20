@@ -3,7 +3,7 @@ module WebsocketRails
 
     include Logging
 
-    delegate :config, :channel_tokens, :channel_manager, :to => WebsocketRails
+    delegate :config, :channel_tokens, :channel_manager, :filtered_channels, :to => WebsocketRails
 
     attr_reader :name, :subscribers
 
@@ -48,6 +48,10 @@ module WebsocketRails
         @subscribers.clear
       end
       @private = true
+    end
+
+    def filter_with(controller)
+      filtered_channels[@name] = controller
     end
 
     def is_private?

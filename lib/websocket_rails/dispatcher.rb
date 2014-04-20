@@ -5,6 +5,8 @@ module WebsocketRails
 
     attr_reader :event_map, :connection_manager, :controller_factory
 
+    delegate :filtered_channels, to: WebsocketRails
+
     def initialize(connection_manager)
       @connection_manager = connection_manager
       @controller_factory = ControllerFactory.new(self)
@@ -25,7 +27,11 @@ module WebsocketRails
       return if event.is_invalid?
 
       if event.is_channel?
-        WebsocketRails[event.channel].trigger_event event
+        if filtered_channels[event.channel]
+          filter_channel(event)
+        else
+          WebsocketRails[event.channel].trigger_event event
+        end
       else
         reload_event_map! unless event.is_internal?
         route event
@@ -69,6 +75,24 @@ module WebsocketRails
             event.data = extract_exception_data ex
             event.trigger
           end
+        end
+      end
+      execute actions
+    end
+
+    def filter_channel(event)
+      actions = []
+      actions << Fiber.new do
+        begin
+          log_event(event) do
+            controller = controller_factory.new_for_event(event, filtered_channels[event.channel], event.name)
+
+            controller.process_action(event.name, event)
+          end
+        rescue Exception => ex
+          event.success = false
+          event.data = extract_exception_data ex
+          event.trigger
         end
       end
       execute actions

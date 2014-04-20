@@ -45,6 +45,12 @@ module WebsocketRails
       end
     end
 
+    def self.filter_for_channels(*channels)
+      channels.each do |channel|
+        WebsocketRails.filtered_channels[channel] = self
+      end
+    end
+
     # Provides direct access to the connection object for the client that
     # initiated the event that is currently being executed.
     def connection
