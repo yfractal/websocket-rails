@@ -79,6 +79,13 @@ module WebsocketRails
         subject.should_not_receive(:send_data).with(event)
         subject.trigger_event event
       end
+
+      it "should not propagate if event.propagate is false" do
+        event = Event.new 'awesome_event', {:channel => 'awesome_channel', :token => subject.token, :propagate => false}
+        connection.should_not_receive(:trigger)
+        subject.subscribers << connection
+        subject.trigger_event event
+      end
     end
 
     describe "#filter_with" do

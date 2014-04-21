@@ -98,10 +98,9 @@ module WebsocketRails
     include Logging
     extend StaticEvents
 
-    attr_reader :id, :name, :connection, :namespace, :channel, :user_id,
-                :token, :propagate
+    attr_reader :id, :name, :connection, :namespace, :channel, :user_id, :token
 
-    attr_accessor :data, :result, :success, :server_token
+    attr_accessor :data, :result, :success, :server_token, :propagate
 
     def initialize(event_name, options={})
       case event_name
@@ -119,7 +118,7 @@ module WebsocketRails
       @connection   = options[:connection]
       @server_token = options[:server_token]
       @user_id      = options[:user_id]
-      @propagate    = options[:propagate] ? options[:propagate] : true
+      @propagate    = options[:propagate].nil? ? true : options[:propagate]
       @namespace    = validate_namespace( options[:namespace] || namespace )
     end
 

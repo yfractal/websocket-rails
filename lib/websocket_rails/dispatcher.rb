@@ -28,7 +28,6 @@ module WebsocketRails
 
       if event.is_channel?
         filter_channel(event)
-        WebsocketRails[event.channel].trigger_event event
       else
         reload_event_map! unless event.is_internal?
         route event
@@ -92,6 +91,7 @@ module WebsocketRails
           event.trigger
         end
       end
+      actions << Fiber.new{ WebsocketRails[event.channel].trigger_event(event) }
       execute actions
     end
 
