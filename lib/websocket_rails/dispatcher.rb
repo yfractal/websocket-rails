@@ -81,9 +81,15 @@ module WebsocketRails
       actions << Fiber.new do
         begin
           log_event(event) do
-            controller = controller_factory.new_for_event(event, filtered_channels[event.channel], event.name)
+            controller_class, catch_all = filtered_channels[event.channel]
 
-            controller.process_action(event.name, event)
+            controller = controller_factory.new_for_event(event, controller_class, event.name)
+            # send to the method of the event name
+            # silently skip routing to the controller on event.name if it doesnt respond
+            controller.process_action(event.name, event) if controller.respond_to?(event.name)
+            # send to our defined catch all method
+            controller.process_action(catch_all, event) if catch_all
+
           end
         rescue Exception => ex
           event.success = false

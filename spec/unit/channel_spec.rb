@@ -91,9 +91,14 @@ module WebsocketRails
     describe "#filter_with" do
       it "should add the controller to the filtered_channels hash" do
         filter = double('BaseController')
-        subject.filtered_channels.should eq({})
         subject.filter_with(filter)
         subject.filtered_channels[subject.name].should eq(filter)
+      end
+
+      it "should allow setting the catch_all method" do
+        filter = double('BaseController')
+        subject.filter_with(filter, :some_method)
+        subject.filtered_channels[subject.name].should eq([filter, :some_method])
       end
     end
 

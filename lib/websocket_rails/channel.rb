@@ -50,8 +50,8 @@ module WebsocketRails
       @private = true
     end
 
-    def filter_with(controller)
-      filtered_channels[@name] = controller
+    def filter_with(controller, catch_all=nil)
+      filtered_channels[@name] = catch_all.nil? ? controller : [controller, catch_all]
     end
 
     def is_private?

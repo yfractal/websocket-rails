@@ -45,9 +45,24 @@ module WebsocketRails
       end
     end
 
+    # Tell the dispatcher to use channel filtering on specific channels.
+    # If supplied, the :catch_all => :method will be processed for every
+    # event that comes into the channel(s).
+    #
+    #
+    # Example:
+    # To process events based upon the event_name inside :channel_one
+    #
+    #  filter_for_channels :channel_one
+    #
+    # To process events based upon the event_name and a catch all
+    #
+    #  filter_for_channels :channel_one, :catch_all => :logger_method
+    #
     def self.filter_for_channels(*channels)
+      options = channels.pop if channels.last.is_a?(Hash)
       channels.each do |channel|
-        WebsocketRails.filtered_channels[channel] = self
+        WebsocketRails.filtered_channels[channel] = options[:catch_all].nil? ? self : [self, options[:catch_all]]
       end
     end
 
