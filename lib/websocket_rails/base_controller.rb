@@ -122,7 +122,7 @@ module WebsocketRails
       trigger_failure data
     end
 
-    def stop_event_propagation
+    def stop_event_propagation!
       event.propagate = false
     end
 
