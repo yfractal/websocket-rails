@@ -6,7 +6,7 @@ module WebsocketRails
     let(:encoded_message_string) { '["new_message",{"id":"1234","data":"this is a message"}]' }
     let(:namespace_encoded_message_string) { '["product.new_message",{"id":"1234","data":"this is a message"}]' }
     let(:namespace_encoded_message) { '["product.new_message",{"id":"1234","data":{"message":"this is a message"}}]' }
-    let(:channel_encoded_message_string) { '["new_message",{"id":"1234","channel":"awesome_channel","user_id":null,"data":"this is a message","success":null,"result":null,"token":null,"server_token":"1234"}]' }
+    let(:channel_encoded_message_string) { '["new_message",{"id":"1234","channel":"awesome_channel","user_id":null,"data":"this is a message","success":null,"result":null,"token":null,"server_token":"1234","propagate":true}]' }
     let(:synchronizable_encoded_message) { '["new_message",{"id":"1234","data":{"message":"this is a message"},"server_token":"1234"}]' }
     let(:connection) { double('connection') }
     let(:wrongly_encoded_message) { '["new_message",[{"id":"1234","data":{"message":"this is a message"}}]]' }
