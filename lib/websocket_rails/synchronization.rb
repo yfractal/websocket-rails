@@ -45,7 +45,7 @@ module WebsocketRails
     include Logging
 
     def redis_pool(redis_options)
-      ConnectionPool::Wrapper.new(size: WebsocketRails.config.synchronize_pool_size) do
+      ConnectionPool.new(size: WebsocketRails.config.synchronize_pool_size) do
         Redis.new(redis_options)
       end
     end
@@ -138,7 +138,7 @@ module WebsocketRails
     def generate_server_token
       begin
         token = SecureRandom.urlsafe_base64
-      end while redis.sismember("websocket_rails.active_servers", token)
+      end while redis.with{|conn| conn.sismember("websocket_rails.active_servers", token)}
 
       token
     end
@@ -153,7 +153,9 @@ module WebsocketRails
     end
 
     def remove_server(token)
-      ruby_redis.srem "websocket_rails.active_servers", token
+      redis.with do |conn|
+        conn.srem "websocket_rails.active_servers", token
+      end
       info "Server Removed: #{token}"
       EM.stop
     end
@@ -178,15 +180,17 @@ module WebsocketRails
 
     def find_user(identifier)
       Fiber.new do
-        raw_user = redis.hget('websocket_rails.users', identifier)
-        raw_user ? JSON.parse(raw_user) : nil
+        redis.with do |conn|
+          raw_user = conn.hget('websocket_rails.users', identifier)
+          raw_user ? JSON.parse(raw_user) : nil
+        end
       end.resume
     end
 
     def all_users
       Fiber.new do
         redis.with do |conn|
-          redis.hgetall('websocket_rails.users')
+          conn.hgetall('websocket_rails.users')
         end
       end.resume
     end
