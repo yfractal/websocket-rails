@@ -1,5 +1,3 @@
-require 'redis-objects'
-
 module WebsocketRails
 
   class << self
@@ -34,7 +32,9 @@ module WebsocketRails
     def channel_tokens
       @channel_tokens ||= begin
         if WebsocketRails.synchronize?
-          ::Redis::HashKey.new('websocket_rails.channel_tokens', Synchronization.redis)
+          Synchronization.redis.with do |conn|
+            conn.hgetall('websocket_rails.channel_tokens')
+          end
         else
           {}
         end
