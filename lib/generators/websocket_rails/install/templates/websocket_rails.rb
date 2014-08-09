@@ -22,6 +22,10 @@ WebsocketRails.setup do |config|
   # * Requires Redis.
   config.synchronize = false
 
+  # Each server instance creates a pool of redis connections to use
+  # for synchronization. You can adjust the pool size to fit your needs.
+  # config.synchronize_pool_size = 5
+
   # Prevent Thin from daemonizing (default is true)
   # config.daemonize = false
 
