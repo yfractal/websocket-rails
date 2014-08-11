@@ -65,7 +65,7 @@ module WebsocketRails
     end
 
     def broadcast_subscribers(event)
-      return if event.token != token
+      #return if event.token != token
       info "B:[#{@name}] #{event.data.inspect}"
       info "total: #{@subscribers.count}, unique: #{@subscribers.uniq.count}"
       broadcast event
