@@ -1,6 +1,7 @@
 require "redis"
 require "redis/connection/ruby"
 require "connection_pool"
+require "redis-objects"
 
 module WebsocketRails
 
@@ -18,8 +19,12 @@ module WebsocketRails
       include Logging
 
       def initialize
+        Redis::Objects.redis = redis
         @dispatch_queue = EventQueue.new
         @publish_queue = EventQueue.new
+        @channel_tokens = Redis::HashKey.new('websocket_rails.channel_tokens')
+        @active_servers = Redis::List.new('websocket_rails.server_tokens')
+        @active_users = Redis::HashKey.new('websocket_rails.users', marshal: true)
       end
 
       def redis_pool(redis_options)
@@ -109,60 +114,45 @@ module WebsocketRails
       def generate_server_token
         begin
           token = SecureRandom.urlsafe_base64
-        end while redis.with{|conn| conn.sismember("websocket_rails.active_servers", token) }
+        end while @active_servers.include? token
 
         token
       end
 
       def register_server(token)
-        redis.with do |conn|
-          conn.sadd "websocket_rails.active_servers", token
-        end
+        @active_servers << token
         info "Server Registered: #{token}"
       end
 
       def remove_server(token)
-        ruby_redis.with do |conn|
-          conn.srem "websocket_rails.active_servers", token
-        end
+        @active_servers.delete token
         info "Server Removed: #{token}"
       end
 
       def register_remote_user(connection)
         id = connection.user_identifier
         user = connection.user
-        redis.with do |conn|
-          conn.hset 'websocket_rails.users', id, user.as_json(root: false).to_json
-        end
+        @active_users[id] = user
       end
 
       def destroy_remote_user(identifier)
-        redis.with do |conn|
-          conn.hdel 'websocket_rails.users', identifier
-        end
+        @active_users.delete identifier
       end
 
       def find_remote_user(identifier)
-          raw_user = redis.with{|conn| conn.hget('websocket_rails.users', identifier)}
-          raw_user ? JSON.parse(raw_user) : nil
+        @active_users[identifier]
       end
 
       def all_remote_users
-        redis.with do |conn|
-          conn.hgetall('websocket_rails.users')
-        end
+        @active_users.all
       end
 
       def channel_tokens
-        redis.with do |conn|
-          conn.hgetall('websocket_rails.channel_tokens')
-        end
+        @channel_tokens
       end
 
       def register_channel(name, token)
-        redis.with do |conn|
-          conn.hset 'websocket_rails.channel_tokens', name, token
-        end
+        @channel_tokens[name] = token
       end
     end
   end

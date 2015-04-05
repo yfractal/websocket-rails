@@ -3,9 +3,7 @@ module WebsocketRails
   class << self
 
     def channel_manager
-      return @channel_manager if @channel_manager
-
-      @channel_manager = ChannelManager.new
+      @chan_manager ||= ChannelManager.new
     end
 
     def [](channel)
@@ -35,23 +33,21 @@ module WebsocketRails
     end
 
     def register_channel(name, token)
-      sync.register_channel(name, token) if WebsocketRails.synchronize?
-      channel_tokens[name] = token
+      @mutex.synchronize do
+        channel_tokens[name] = token
+      end
     end
 
     def channel_tokens
-      return sync.channel_tokens if WebsocketRails.synchronize?
-      return @channel_tokens if @channel_tokens
-      @channel_tokens = {}
+      if WebsocketRails.synchronize?
+        sync.channel_tokens
+      else
+        @channel_tokens ||= {}
+      end
     end
 
     def [](channel)
-     @mutex.synchronize do
-
-       return @channels[channel] if @channels[channel]
-
-       @channels[channel] = Channel.new(channel)
-      end
+      @channels[channel] ||= Channel.new(channel)
     end
 
     def unsubscribe(connection)

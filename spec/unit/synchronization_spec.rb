@@ -1,23 +1,18 @@
 require "spec_helper"
 require "eventmachine"
 require "ostruct"
+require "redis-objects"
 
 module WebsocketRails
   describe Synchronization do
 
     around(:each) do |example|
-      EM.run do
-        Fiber.new do
-          @redis = Redis.new(WebsocketRails.config.redis_options)
-          @redis.del "websocket_rails.active_servers"
-          example.run
-        end.resume
-      end
+      @redis = Redis.new(WebsocketRails.config.redis_options)
+      @redis.del "websocket_rails.active_servers"
     end
 
     after(:each) do
       @redis.del "websocket_rails.active_servers"
-      EM.stop
     end
 
     let(:subject) { Synchronization.sync }
