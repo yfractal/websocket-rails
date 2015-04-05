@@ -28,9 +28,16 @@ module WebsocketRails
       end
 
       it "should empty the queue" do
-        subject.pop
-        sleep 0.1
+        subject.pop{|event| event }
+        sleep(0.1)
         expect(subject.queue.empty?).to be(true)
+      end
+
+      it "should abort on exception" do
+        expect{
+          subject.pop{|e| raise e}
+          sleep(0.1)
+        }.to raise_error
       end
     end
   end

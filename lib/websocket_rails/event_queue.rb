@@ -27,7 +27,7 @@ module WebsocketRails
           while (item = @queue.pop) do
             yield item
           end
-        end
+        end.abort_on_exception = true
       end
     end
 
