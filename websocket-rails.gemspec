@@ -24,9 +24,9 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "faye-websocket"
   s.add_runtime_dependency "redis"
   s.add_runtime_dependency "hiredis"
+  s.add_runtime_dependency "redis-objects"
   s.add_runtime_dependency "uuidtools"
   s.add_runtime_dependency "connection_pool"
-  s.add_runtime_dependency "puma"
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec-rails", "~> 2.14.0"
 

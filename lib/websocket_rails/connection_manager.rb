@@ -1,6 +1,16 @@
 require 'faye/websocket'
 require 'rack'
 
+if defined?(::Puma)
+  Faye::WebSocket.load_adapter('puma')
+elsif defined?(::Thin)
+  Faye::WebSocket.load_adapter('thin')
+elsif defined?(::Unicorn)
+  Faye::WebSocket.load_adapter('unicorn')
+else
+  raise 'No suitable websocket adapter found'
+end
+
 
 module WebsocketRails
 
