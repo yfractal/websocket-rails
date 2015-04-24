@@ -8,7 +8,7 @@ elsif defined?(::Thin)
 elsif defined?(::Unicorn)
   Faye::WebSocket.load_adapter('unicorn')
 else
-  raise 'No suitable websocket adapter found'
+  #raise 'No suitable websocket adapter found'
 end
 
 
